@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Stop VNC server
+vncserver -kill :1
+
+# Fix: use $HOME instead of hardcoded /username/ (was a bug in original)
+rm -f "$HOME/.vnc/localhost:1.pid"
+rm -f "$HOME/.vnc/localhost:1.log"
+
+# Fix: remove stale lock files properly
+rm -f /tmp/.X1-lock
+rm -f /tmp/.X11-unix/X1
+
+echo "VNC Server stopped."
