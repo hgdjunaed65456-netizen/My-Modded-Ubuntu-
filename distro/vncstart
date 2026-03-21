@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Fix: set DISPLAY and PULSE_SERVER before starting VNC
+export DISPLAY=:1
+export PULSE_SERVER=127.0.0.1
+
+# Fix: remove stale lock files before starting to avoid conflicts
+rm -f /tmp/.X1-lock
+rm -f /tmp/.X11-unix/X1
+
+dbus-launch vncserver :1 -geometry 1440x720 -depth 24 -zliblevel 0 -name hacker-junaed -xstartup /usr/bin/xfce4-session
