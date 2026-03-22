@@ -12,36 +12,13 @@ UBUNTU_DIR="$PREFIX/var/lib/proot-distro/installed-rootfs/ubuntu"
 
 banner() {
 	clear
-	printf "
-"
-	printf "[1;31m _  _  _ ___  _  _ ____ ____ [0m
-"
-	printf "[1;31m |__| |/__|   |_/  |___ |__/ [0m
-"
-	printf "[1;31m |  | |\___ . |\_ .|___ |  \ [0m
-"
-	printf "
-"
-	printf "[1;33m ____  _  _ _  _ ____ ____ ____[0m
-"
-	printf "[1;33m   |   |  | |\| |__| |___ |  _[0m
-"
-	printf "[1;33m   |   |__| | \| |  | |___ |__][0m
-"
-	printf "
-"
-	printf "[1;36m Ubuntu Mod - by Junaed Ahmad[0m
-"
-	printf "[1;32m ============================[0m
-"
-	printf "
-"
-}  _  _  _   __  _  _  ___ ____     _  _  _  _ _  _ ____ ____ ___  
-		${C}  |__|  |  |    |_/  |___ |__/     |  |  |  | |\ | |__| |___ |  \ 
-		${G}  |  |  |  |__  | \_ |___ |  \     |__|  |__| | \| |  | |___ |__/ 
-
-	EOF
-	echo -e "${G}     A modded gui version of ubuntu for Termux  ${C}by Junaed Ahmad${W}\n\n"
+	printf "\n"
+	printf "\033[1;31m +--------------------------+\033[0m\n"
+	printf "\033[1;31m |   HACKER   JUNAED        |\033[0m\n"
+	printf "\033[1;31m +--------------------------+\033[0m\n"
+	printf "\033[1;36m  Ubuntu Mod by Junaed Ahmad\033[0m\n"
+	printf "\033[1;32m +--------------------------+\033[0m\n"
+	printf "\n"
 }
 
 package() {
