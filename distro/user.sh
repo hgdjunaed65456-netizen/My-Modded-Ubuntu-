@@ -8,36 +8,13 @@ C="$(printf '\033[1;36m')"
 
 banner() {
 	clear
-	printf "
-"
-	printf "[1;31m _  _  _ ___  _  _ ____ ____ [0m
-"
-	printf "[1;31m |__| |/__|   |_/  |___ |__/ [0m
-"
-	printf "[1;31m |  | |\___ . |\_ .|___ |  \ [0m
-"
-	printf "
-"
-	printf "[1;33m ____  _  _ _  _ ____ ____ ____[0m
-"
-	printf "[1;33m   |   |  | |\| |__| |___ |  _[0m
-"
-	printf "[1;33m   |   |__| | \| |  | |___ |__][0m
-"
-	printf "
-"
-	printf "[1;36m Ubuntu Mod - by Junaed Ahmad[0m
-"
-	printf "[1;32m ============================[0m
-"
-	printf "
-"
-}  _  _  _   __  _  _  ___ ____     _  _  _  _ _  _ ____ ____ ___  \033[0m\n"
-	printf "${C}  |__|  |  |    |_/  |___ |__/     |  |  |  | |\ | |__| |___ |  \ \033[0m\n"
-	printf "${G}  |  |  |  |__  | \_ |___ |  \     |__|  |__| | \| |  | |___ |__/ \033[0m\n"
-	printf "\033[0m\n"
-	printf "     ${G}A modded gui version of ubuntu for Termux  ${C}by Junaed Ahmad\033[0m\n"
-	printf "\033[0m\n"
+	printf "\n"
+	printf "\033[1;31m +--------------------------+\033[0m\n"
+	printf "\033[1;31m |   HACKER   JUNAED        |\033[0m\n"
+	printf "\033[1;31m +--------------------------+\033[0m\n"
+	printf "\033[1;36m  Ubuntu Mod by Junaed Ahmad\033[0m\n"
+	printf "\033[1;32m +--------------------------+\033[0m\n"
+	printf "\n"
 }
 
 install_sudo() {
@@ -53,7 +30,6 @@ login() {
 	read -p $' \e[1;31m[\e[0m\e[1;77m~\e[0m\e[1;31m]\e[0m\e[1;92m Input Username [Lowercase] : \e[0m\e[1;96m\e' user
 	echo -e "${W}"
 
-	# Fix: validate username not empty
 	if [[ -z "$user" ]]; then
 		echo -e "${R} [!] Username cannot be empty!${W}"
 		exit 1
@@ -62,13 +38,11 @@ login() {
 	read -s -p $' \e[1;31m[\e[0m\e[1;77m~\e[0m\e[1;31m]\e[0m\e[1;92m Input Password : \e[0m\e[1;96m\e' pass
 	echo -e "${W}"
 
-	# Fix: validate password not empty
 	if [[ -z "$pass" ]]; then
 		echo -e "${R} [!] Password cannot be empty!${W}"
 		exit 1
 	fi
 
-	# Fix: check if user already exists before creating
 	if id "$user" &>/dev/null; then
 		echo -e "${Y} [!] User '$user' already exists, skipping creation.${W}"
 	else
@@ -78,15 +52,12 @@ login() {
 	usermod -aG sudo "${user}"
 	echo "${user}:${pass}" | chpasswd
 
-	# Fix: avoid duplicate sudoers entry
 	grep -qxF "$user ALL=(ALL:ALL) NOPASSWD:ALL" /etc/sudoers || \
 		echo "$user ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-	# Fix: chmod uncommented — was commented out in original
 	echo "proot-distro login --user $user ubuntu --bind /dev/null:/proc/sys/kernel/cap_last_last --shared-tmp --fix-low-ports" > /data/data/com.termux/files/usr/bin/ubuntu
 	chmod +x /data/data/com.termux/files/usr/bin/ubuntu
 
-	# Copy or download gui.sh
 	if [[ -e '/data/data/com.termux/files/home/My-Modded-Ubuntu-/distro/gui.sh' ]]; then
 		cp /data/data/com.termux/files/home/My-Modded-Ubuntu-/distro/gui.sh /home/$user/gui.sh
 		chmod +x /home/$user/gui.sh
