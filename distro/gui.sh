@@ -17,8 +17,31 @@ check_root(){
 
 banner() {
 	clear
-	cat <<- EOF
-		${Y}  _  _  _   __  _  _  ___ ____     _  _  _  _ _  _ ____ ____ ___  
+	printf "
+"
+	printf "[1;31m _  _  _ ___  _  _ ____ ____ [0m
+"
+	printf "[1;31m |__| |/__|   |_/  |___ |__/ [0m
+"
+	printf "[1;31m |  | |\___ . |\_ .|___ |  \ [0m
+"
+	printf "
+"
+	printf "[1;33m ____  _  _ _  _ ____ ____ ____[0m
+"
+	printf "[1;33m   |   |  | |\| |__| |___ |  _[0m
+"
+	printf "[1;33m   |   |__| | \| |  | |___ |__][0m
+"
+	printf "
+"
+	printf "[1;36m Ubuntu Mod - by Junaed Ahmad[0m
+"
+	printf "[1;32m ============================[0m
+"
+	printf "
+"
+}  _  _  _   __  _  _  ___ ____     _  _  _  _ _  _ ____ ____ ___  
 		${C}  |__|  |  |    |_/  |___ |__/     |  |  |  | |\ | |__| |___ |  \ 
 		${G}  |  |  |  |__  | \_ |___ |  \     |__|  |__| | \| |  | |___ |__/ 
 
@@ -58,7 +81,7 @@ package() {
 	dpkg --configure -a
 	apt-mark hold udisks2
 
-	packs=(sudo gnupg2 curl nano git xz-utils at-spi2-core xfce4 xfce4-goodies xfce4-terminal librsvg2-common menu inetutils-tools dialog exo-utils tigervnc-standalone-server tigervnc-common tigervnc-tools dbus-x11 fonts-beng fonts-beng-extra gtk2-engines-murrine gtk2-engines-pixbuf apt-transport-https)
+	packs=(sudo gnupg2 curl wget nano git xz-utils at-spi2-core xfce4 xfce4-goodies xfce4-terminal librsvg2-common menu inetutils-tools dialog exo-utils tigervnc-standalone-server tigervnc-common tigervnc-tools dbus-x11 fonts-beng fonts-beng-extra gtk2-engines-murrine gtk2-engines-pixbuf apt-transport-https)
 	for hulu in "${packs[@]}"; do
 		dpkg -s "$hulu" &>/dev/null || {
 			echo -e "\n${R} [${W}-${R}]${G} Installing package : ${Y}$hulu${W}"
@@ -97,11 +120,11 @@ install_sublime() {
 	[[ $(command -v subl) ]] && echo "${Y}Sublime is already Installed!${W}" || {
 		apt install gnupg2 software-properties-common wget --no-install-recommends -y
 
-		# Fix: remove old broken sublime source/key if exists
+		# Fix: remove old broken source/key if exists
 		rm -f /etc/apt/sources.list.d/sublime-text.list
 		rm -f /etc/apt/trusted.gpg.d/sublime.gpg
 
-		# Fix: use apt-key add method which works reliably in proot
+		# Fix: use apt-key add — more reliable in proot environment
 		wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 		echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
 
@@ -112,20 +135,22 @@ install_sublime() {
 }
 
 install_chromium() {
-	[[ $(command -v chromium) ]] && echo "${Y}Chromium is already Installed!${W}" || {
+	[[ $(command -v chromium-browser) ]] && echo "${Y}Chromium is already Installed!${W}" || {
 		echo -e "${G}Installing ${Y}Chromium${W}"
-		apt purge chromium* chromium-browser* snapd -y
-		apt install gnupg2 software-properties-common --no-install-recommends -y
-		echo -e "deb http://ftp.debian.org/debian buster main\ndeb http://ftp.debian.org/debian buster-updates main" >> /etc/apt/sources.list
-		apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
-		apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-		apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AA8E81B4331F7F50
-		apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 112695A0E562B32A
-		apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-		apt update -y
-		apt install chromium -y
-		# Fix: no-sandbox for proot environment
-		sed -i 's/chromium %U/chromium --no-sandbox %U/g' /usr/share/applications/chromium.desktop
+
+		# Fix: no extra repo — just use Ubuntu's own chromium-browser package
+		# Avoids dependency conflicts from mixing Debian + Ubuntu repos
+		apt-get update -y
+		apt-get install chromium-browser -y
+
+		# Fix: no-sandbox for proot/root environment
+		if [ -f /usr/share/applications/chromium-browser.desktop ]; then
+			sed -i 's|Exec=chromium-browser|Exec=chromium-browser --no-sandbox|g' /usr/share/applications/chromium-browser.desktop
+		fi
+		if [ -f /usr/share/applications/chromium.desktop ]; then
+			sed -i 's|Exec=chromium %U|Exec=chromium --no-sandbox %U|g' /usr/share/applications/chromium.desktop
+		fi
+
 		echo -e "${G} Chromium Installed Successfully\n${W}"
 	}
 }
@@ -133,13 +158,21 @@ install_chromium() {
 install_firefox() {
 	[[ $(command -v firefox) ]] && echo "${Y}Firefox is already Installed!${W}" || {
 		echo -e "${G}Installing ${Y}Firefox${W}"
+
+		# Fix: add DISPLAY export before installing so post-install hooks work
+		export DISPLAY=:1
+
 		bash <(curl -fsSL "https://raw.githubusercontent.com/hgdjunaed65456-netizen/My-Modded-Ubuntu-/main/distro/firefox.sh")
-		# Fix: no-sandbox flag for proot environment
-		if [ -f /usr/share/applications/firefox.desktop ]; then
-			sed -i 's|Exec=firefox|Exec=firefox --no-sandbox|g' /usr/share/applications/firefox.desktop
-			sed -i 's|Exec=firefox %u|Exec=firefox --no-sandbox %u|g' /usr/share/applications/firefox.desktop
-			sed -i 's|Exec=firefox %U|Exec=firefox --no-sandbox %U|g' /usr/share/applications/firefox.desktop
-		fi
+
+		# Fix: no-sandbox flag — required for proot/root environment
+		for desktop_file in /usr/share/applications/firefox.desktop /usr/lib/firefox/firefox.desktop; do
+			if [ -f "$desktop_file" ]; then
+				sed -i 's|Exec=firefox %u|Exec=firefox --no-sandbox %u|g' "$desktop_file"
+				sed -i 's|Exec=firefox %U|Exec=firefox --no-sandbox %U|g' "$desktop_file"
+				sed -i 's|Exec=firefox$|Exec=firefox --no-sandbox|g' "$desktop_file"
+			fi
+		done
+
 		echo -e "${G} Firefox Installed Successfully\n${W}"
 	}
 }
@@ -228,20 +261,19 @@ downloader(){
 }
 
 sound_fix() {
-	# Fix: prepend sound script to ubuntu launch command
+	# Fix: prepend sound script only if not already there
 	if ! grep -q 'bash ~/.sound' /data/data/com.termux/files/usr/bin/ubuntu; then
 		echo "$(echo 'bash ~/.sound' | cat - /data/data/com.termux/files/usr/bin/ubuntu)" > /data/data/com.termux/files/usr/bin/ubuntu
 	fi
 
-	# Fix: correct DISPLAY variable (was broken with mismatched quotes)
+	# Fix: correct DISPLAY — use single quotes to avoid quote parsing bug
 	grep -qxF 'export DISPLAY=:1' /etc/profile || \
 		echo 'export DISPLAY=:1' >> /etc/profile
 
-	# Fix: PULSE_SERVER
 	grep -qxF 'export PULSE_SERVER=127.0.0.1' /etc/profile || \
 		echo 'export PULSE_SERVER=127.0.0.1' >> /etc/profile
 
-	# Fix: also set in /etc/environment for GUI session
+	# Fix: also write to /etc/environment for GUI session
 	grep -qxF 'DISPLAY=:1' /etc/environment || \
 		echo 'DISPLAY=:1' >> /etc/environment
 	grep -qxF 'PULSE_SERVER=127.0.0.1' /etc/environment || \
@@ -266,7 +298,6 @@ config() {
 	banner
 	sound_fix
 
-	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 	yes | apt upgrade
 	yes | apt install gtk2-engines-murrine gtk2-engines-pixbuf sassc optipng inkscape libglib2.0-dev-bin
 	[ -f /usr/share/backgrounds/xfce/xfce-verticals.png ] && \

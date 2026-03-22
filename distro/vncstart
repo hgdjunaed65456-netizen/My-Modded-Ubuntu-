@@ -1,11 +1,31 @@
 #!/usr/bin/env bash
 
-# Fix: set DISPLAY and PULSE_SERVER before starting VNC
-export DISPLAY=:1
-export PULSE_SERVER=127.0.0.1
-
-# Fix: remove stale lock files before starting to avoid conflicts
+# Fix: remove stale lock files before starting
 rm -f /tmp/.X1-lock
 rm -f /tmp/.X11-unix/X1
 
-dbus-launch vncserver :1 -geometry 1440x720 -depth 24 -zliblevel 0 -name hacker-junaed -xstartup /usr/bin/xfce4-session
+# Fix: unset conflicting session variables that cause DBus/browser crash
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+
+# Fix: set display and audio
+export DISPLAY=:1
+export PULSE_SERVER=127.0.0.1
+
+# Fix: create proper xstartup file for XFCE4 with dbus
+mkdir -p "$HOME/.vnc"
+cat > "$HOME/.vnc/xstartup" <<'EOF'
+#!/bin/bash
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+export DISPLAY=:1
+export PULSE_SERVER=127.0.0.1
+[ -r "$HOME/.Xresources" ] && xrdb "$HOME/.Xresources"
+dbus-launch --exit-with-session startxfce4 &
+EOF
+chmod +x "$HOME/.vnc/xstartup"
+
+# Start VNC server
+vncserver :1 -geometry 1440x720 -depth 24 -zliblevel 0 -name hacker-junaed -xstartup "$HOME/.vnc/xstartup"
+
+echo "VNC started. Connect to localhost:1"
