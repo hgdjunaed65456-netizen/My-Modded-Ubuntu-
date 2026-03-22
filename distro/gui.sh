@@ -95,9 +95,16 @@ install_vscode() {
 
 install_sublime() {
 	[[ $(command -v subl) ]] && echo "${Y}Sublime is already Installed!${W}" || {
-		apt install gnupg2 software-properties-common --no-install-recommends -y
+		apt install gnupg2 software-properties-common wget --no-install-recommends -y
+
+		# Fix: remove old broken sublime source/key if exists
+		rm -f /etc/apt/sources.list.d/sublime-text.list
+		rm -f /etc/apt/trusted.gpg.d/sublime.gpg
+
+		# Fix: use apt-key add method which works reliably in proot
+		wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 		echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
-		curl -fsSL https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/sublime.gpg 2> /dev/null
+
 		apt update -y
 		apt install sublime-text -y
 		echo -e "${C} Sublime Text Editor Installed Successfully\n${W}"

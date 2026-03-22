@@ -164,11 +164,16 @@ o5I=
 EOF
 }
 
-# Fix: detect Ubuntu codename dynamically instead of hardcoding jammy
-CODENAME=$(lsb_release -cs 2>/dev/null || echo "jammy")
+# Fix: hardcode jammy — lsb_release returns wrong codename in proot environment
+# Ubuntu 22.04 Jammy PPA is stable and works for all Ubuntu versions in proot
+CODENAME="jammy"
 
 echo "deb https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu ${CODENAME} main" | \
 	tee /etc/apt/sources.list.d/mozillateam-ubuntu-ppa-${CODENAME}.list
+
+# Fix: remove duplicate source if exists
+rm -f /etc/apt/sources.list.d/mozillateam-ubuntu-ppa-questing.list
+rm -f /etc/apt/sources.list.d/mozillateam-ubuntu-ppa-noble.list
 
 print_key | gpg --dearmor > /etc/apt/trusted.gpg.d/firefox.gpg 2>/dev/null
 
